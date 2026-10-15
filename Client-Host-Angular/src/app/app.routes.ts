@@ -26,14 +26,15 @@ export const routes: Routes = [
    * de mostrar y gestionar el listado de usuarios.
    */
   {
-        path: 'users',
-        loadComponent: () =>
-            loadRemoteModule({
-                type: 'module',
-                remoteEntry: 'http://localhost:4201/remoteEntry.js',
-                exposedModule: './UsersPage',
-        }).then(m => m.UsersPage),
-    },    
+    path: 'users',
+    loadComponent: () =>
+      loadRemoteModule({
+        type: 'module',
+        remoteEntry: 'http://localhost:4201/remoteEntry.js',
+        exposedModule: './UsersPage',
+      }).then((m) => m.UsersPage),
+  },
+
   /**
    * Ruta de productos.
    *
@@ -41,15 +42,32 @@ export const routes: Routes = [
    * Renderiza el componente `ProductsPage`, encargado
    * de mostrar y gestionar el listado de productos.
    */
-    {
-        path: 'products',
-        loadComponent: () =>
-            loadRemoteModule({
-                type: 'module',
-                remoteEntry: 'http://localhost:4202/remoteEntry.js',
-                exposedModule: './ProductsPage',
-        }).then(m => m.ProductsPage),
-    },
+  {
+    path: 'products',
+    loadComponent: () =>
+      loadRemoteModule({
+        type: 'module',
+        remoteEntry: 'http://localhost:4202/remoteEntry.js',
+        exposedModule: './ProductsPage',
+      }).then((m) => m.ProductsPage),
+  },
+
+  /**
+   * Ruta de ventas.
+   *
+   * @remarks
+   * Renderiza el componente `SalesPage`, encargado
+   * de mostrar y gestionar el listado de ventas.
+   */
+  {
+    path: 'sales',
+    loadComponent: () =>
+      loadRemoteModule({
+        type: 'module',
+        remoteEntry: 'http://localhost:4203/remoteEntry.js',
+        exposedModule: './SalesPage',
+      }).then((m) => m.SalesPage),
+  },
 
   /**
    * Ruta comodín.

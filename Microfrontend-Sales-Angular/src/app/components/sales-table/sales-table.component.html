@@ -1,0 +1,29 @@
+<table class="table table-striped border">
+  <thead>
+    <tr>
+      <th scope="col">Id</th>
+      <th scope="col">Cliente</th>
+      <th scope="col">Producto</th>
+      <th scope="col">Cantidad</th>
+      <th scope="col">Total</th>
+      <th scope="col">Estado</th>
+    </tr>
+  </thead>
+  <tbody>
+    @for (sale of sales; track sale) {
+      <tr>
+        <th scope="row">{{ sale.id }}</th>
+        <td>{{ sale.customer }}</td>
+        <td>{{ sale.item }}</td>
+        <td>{{ sale.quantity }}</td>
+        <td>{{ sale.total | currency }}</td>
+        <td>
+          <dsb-badge-atom
+            [text]="sale.status"
+            [type]="statusMap[sale.status]" >
+          </dsb-badge-atom>
+        </td>
+      </tr>
+    }
+  </tbody>
+</table>
