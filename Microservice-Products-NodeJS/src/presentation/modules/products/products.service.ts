@@ -1,5 +1,6 @@
-import { faker } from '@faker-js/faker';
 import { Product, ProductCategory } from '../../../domain/interfaces/product.interface';
+
+export type CreateProduct = Omit<Product, 'id'>;
 
 /**
  * Servicio encargado de la generación y gestión de productos.
@@ -9,6 +10,10 @@ import { Product, ProductCategory } from '../../../domain/interfaces/product.int
  * ficticios, principalmente con fines de prueba o demostración.
  */
 export class ProductsService {
+  private readonly products: Product[] = [
+    { id: 1, name: 'Leche entera', category: 'Lacteos', price: 4500 },
+    { id: 2, name: 'Manzana roja', category: 'Frutas', price: 3200 },
+  ];
 
   /**
    * Categorías disponibles para los productos.
@@ -35,14 +40,11 @@ export class ProductsService {
    * const products = await productsService.getAllProducts(10);
    * ```
    */
-  public async getAllProducts(countProducts: number): Promise<Product[]> {
-    const products: Promise<Product>[] = [];
-
-    for (let i = 1; i <= countProducts; i++) {
-      products.push(this.generateProduct(i));
+  public async getAllProducts(limit = 10): Promise<Product[]> {
+    if (!Number.isInteger(limit) || limit < 1 || limit > 100) {
+      throw new Error('limit debe estar entre 1 y 100');
     }
-
-    return Promise.all(products);
+    return this.products.slice(0, limit);
   }
 
   /**
@@ -51,14 +53,16 @@ export class ProductsService {
    * @param id Identificador único del producto
    * @returns Promesa que resuelve un producto generado
    */
-  private generateProduct(id: number): Promise<Product> {
-    return Promise.resolve({
-      id,
-      name: faker.commerce.productName(),
-      price: Number(
-        faker.commerce.price({ min: 1, max: 100, dec: 2 })
-      ),
-      category: faker.helpers.arrayElement(this.categories),
-    });
+  public async getProductById(id: number): Promise<Product | undefined> {
+    return this.products.find((product) => product.id === id);
+  }
+
+  public async createProduct(input: CreateProduct): Promise<Product> {
+    if (!input.name?.trim() || !this.categories.includes(input.category) || !Number.isFinite(input.price) || input.price <= 0) {
+      throw new Error('Producto inválido');
+    }
+    const product = { ...input, name: input.name.trim(), id: Math.max(0, ...this.products.map((item) => item.id)) + 1 };
+    this.products.push(product);
+    return product;
   }
 }

@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { HandleError } from "../../../domain/erros/handle.error";
 import { ProductsService } from "./products.service";
+import { CustomError } from '../../../domain/erros/custom.error';
 
 /**
  * Controlador de productos.
@@ -32,13 +33,21 @@ export class ProductsController {
    * ```
    */
   getAllProducts = (req: Request, res: Response): void => {
-    const { countProducts } = req.params;
+    const limit = Number(req.query.limit ?? 10);
+    this.productsService.getAllProducts(limit)
+      .then((products) => res.status(200).json(products))
+      .catch((error) => HandleError.error(CustomError.badRequest(error instanceof Error ? error.message : 'Solicitud inválida'), res));
+  };
 
-    setTimeout(() => {
-      this.productsService
-      .getAllProducts(Number(countProducts))
-      .then((products) => res.status(201).json(products))
+  getProductById = (req: Request, res: Response): void => {
+    this.productsService.getProductById(Number(req.params.id))
+      .then((product) => product ? res.json(product) : HandleError.error(CustomError.notFound('Producto no encontrado'), res))
       .catch((error) => HandleError.error(error, res));
-    }, 1000);
+  };
+
+  createProduct = (req: Request, res: Response): void => {
+    this.productsService.createProduct(req.body)
+      .then((product) => res.status(201).json(product))
+      .catch((error) => HandleError.error(CustomError.badRequest(error instanceof Error ? error.message : 'Producto inválido'), res));
   };
 }

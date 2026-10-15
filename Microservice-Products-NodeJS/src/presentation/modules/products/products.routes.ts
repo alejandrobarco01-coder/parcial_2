@@ -35,7 +35,9 @@ export class ProductsRoutes {
      *       400:
      *         description: Parámetro inválido
      */
-    router.get("/:countProducts", controller.getAllProducts);
+    router.get("/", controller.getAllProducts);
+    router.get("/:id", controller.getProductById);
+    router.post("/", controller.createProduct);
 
     return router;
   }
