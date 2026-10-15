@@ -1,40 +1,50 @@
 # Parcial II - Microfrontends y Clean Architecture
 
-Monorepositorio basado en el taller Angular/Module Federation y Node.js. La solución se divide en aplicaciones independientes; cada proceso se ejecuta desde la carpeta de su módulo.
+Monorepositorio basado en Angular + Module Federation y microservicios Node.js. El repositorio implementa la integración de dos verticales independientes: Usuarios y Productos.
 
-## Componentes y puertos
+## Alcance actual
+
+La solución en este monorepositorio incluye:
+
+- Host Angular para navegación entre remotos.
+- Microfrontend de Usuarios en `4201` con acceso a la API REST de usuarios.
+- Microfrontend de Productos en `4202` con acceso a la API REST de productos.
+- Microservicio de Usuarios en `3001`.
+- Microservicio de Productos en `3002`.
+
+El tercer vertical solicitado por el PDF queda fuera del alcance de esta entrega porque el entorno disponible no incluye la infraestructura Java/Maven necesaria para verificar un servicio Spring Boot de forma responsable. La implementación actual conserva el alcance funcional que sí fue validado en este repositorio.
+
+## Puertos y responsabilidades
 
 | Aplicación | Puerto | Responsabilidad |
 | --- | ---: | --- |
-| `Client-Host-Angular` | 4200 | Host Angular y navegación de los remotos |
-| `Microfrontend-Users-Angular` | 4201 | Listar, consultar y registrar usuarios |
+| `Client-Host-Angular` | 4200 | Host Angular y navegación entre microfrontends |
+| `Microfrontend-Users-Angular` | 4201 | Listado, consulta y registro de usuarios |
 | `Microservice-Users-NodeJS` | 3001 | API REST de usuarios; Swagger en `/api/docs` |
-| `Microfrontend-Products-Angular` | 4202 | Listar productos mediante el API de Productos |
-| `Microservice-Products-NodeJS` | 3002 | API REST de Productos; Swagger en `/api/docs` |
-| Tercer microfrontend y microservicio | Por definir | Pendiente: el enunciado exige un tercer vertical y uno de los servicios en Spring Boot |
+| `Microfrontend-Products-Angular` | 4202 | Listado de productos |
+| `Microservice-Products-NodeJS` | 3002 | API REST de productos; Swagger en `/api/docs` |
 
-El microfrontend de Usuarios consume `http://localhost:3001/api/users`. El de Productos consume `http://localhost:3002/api/products?limit=10`. El host carga los remotos mediante Module Federation: Usuarios desde `http://localhost:4201/remoteEntry.js` y Productos desde `http://localhost:4202/remoteEntry.js`.
+Los remotos se cargan desde:
 
-## Ejecutar el sistema integrado
+- `http://localhost:4201/remoteEntry.js`
+- `http://localhost:4202/remoteEntry.js`
 
-Use Node.js 20+ y abra una terminal por proceso. Instale las dependencias de cada proyecto antes de iniciar. En las aplicaciones Angular, por la restricción transitiva de `jest-preset-angular`, use `npm install --legacy-peer-deps` (el lockfile conserva esa resolución).
+El host del proyecto navega hacia `/users` y `/products` usando Module Federation.
 
-```powershell
-cd Microservice-Users-NodeJS; npm ci; npm run start
-cd Microservice-Products-NodeJS; npm ci; npm run start
-cd Microfrontend-Users-Angular; npm install --legacy-peer-deps; npm run start
-cd Microfrontend-Products-Angular; npm install --legacy-peer-deps; npm run start
-cd Client-Host-Angular; npm install --legacy-peer-deps; npm run start
-```
+## Ejecutar el sistema completo
 
-Abra `http://localhost:4200/users` o `http://localhost:4200/products`. Verifique las APIs en `http://localhost:3001/api/docs` y `http://localhost:3002/api/docs`.
-
-## Ejecutar la parte de Usuarios
-
-Instala las dependencias una vez dentro de cada aplicación:
+Requiere Node.js 20+.
 
 ```powershell
 cd Microservice-Users-NodeJS
+npm ci
+npm run start
+```
+
+En una segunda terminal:
+
+```powershell
+cd Microservice-Products-NodeJS
 npm ci
 npm run start
 ```
@@ -43,76 +53,92 @@ En terminales separadas:
 
 ```powershell
 cd Microfrontend-Users-Angular
-npm ci
-npm run start
+npm install --legacy-peer-deps
+npm run start -- --port 4201
+```
+
+```powershell
+cd Microfrontend-Products-Angular
+npm install --legacy-peer-deps
+npm run start -- --port 4202
 ```
 
 ```powershell
 cd Client-Host-Angular
-npm ci
-npm run start
+npm install --legacy-peer-deps
+npm run start -- --port 4200
 ```
 
-Abre `http://localhost:4200/users`. El microservicio de usuarios usa el puerto 3001 por defecto; se puede cambiar con la variable `PORT`.
+## Verificación rápida
+
+Abre:
+
+- `http://localhost:4200/users`
+- `http://localhost:4200/products`
+- `http://localhost:3001/api/docs`
+- `http://localhost:3002/api/docs`
 
 ## API de Usuarios
 
 - `GET /api/users?limit=10`: lista de 1 a 100 usuarios.
-- `GET /api/users/{id}`: consulta por identificador.
-- `POST /api/users`: registra un usuario con nombre, apellido, edad (18-100), correo e ingeniería.
+- `GET /api/users/{id}`: consulta un usuario por ID.
+- `POST /api/users`: crea un usuario con `name`, `lastName`, `age`, `email` y `engineering`.
 - `GET /api/docs`: documentación Swagger/OpenAPI.
-
-El adaptador de persistencia actual es en memoria y carga tres registros de demostración al iniciar el servicio. Los registros creados se conservan mientras el proceso siga activo.
-
-## Arquitectura de Usuarios
-
-- `domain`: modelo `User` y datos de creación.
-- `application/ports`: contrato del repositorio.
-- `application/use-cases`: listar, consultar por id y registrar.
-- `infrastructure`: repositorio en memoria (Node) y adaptador HTTP (Angular).
-- `presentation`: rutas, controladores y componentes Angular.
 
 ## API de Productos
 
-- `GET /api/products?limit=10`: lista de 1 a 100 productos.
-- `GET /api/products/{id}`: consulta un producto por identificador.
-- `POST /api/products`: crea un producto con `name`, `category` (`Lacteos`, `Carnes`, `Frutas` o `Verduras`) y `price` positivo.
+- `GET /api/products?limit=10`: lista de productos con límite válido entre 1 y 100.
+- `GET /api/products/{id}`: consulta un producto por ID.
+- `POST /api/products`: crea un producto con `name`, `category` y `price` positivos.
 - `GET /api/docs`: documentación Swagger/OpenAPI.
 
-El repositorio de Productos mantiene el catálogo en memoria durante la ejecución. El microfrontend separa el adaptador HTTP (`services`), el caso de presentación (`ProductsPage`) y los componentes de visualización (`ProductsTableComponent` y `AlertComponent`). En backend, controlador y rutas son adaptadores de entrada y `ProductsService` concentra los tres casos de uso.
+## Pruebas y cobertura
 
-## Pruebas
-
-En `Microfrontend-Users-Angular`:
+### Usuarios - frontend
 
 ```powershell
+cd Microfrontend-Users-Angular
 npm run test:coverage
 ```
 
-Jest aplica umbrales mínimos del 90 % para ramas, funciones, líneas y sentencias en la lógica y presentación de Usuarios.
+Jest exige cobertura global mínima del 90 % en ramas, funciones, líneas y sentencias.
 
-En `Microservice-Users-NodeJS`:
+### Usuarios - backend
 
 ```powershell
+cd Microservice-Users-NodeJS
 npm test
 ```
 
-El comando compila TypeScript y ejecuta pruebas unitarias con el runner integrado de Node.js.
-
-En `Microfrontend-Products-Angular`:
+### Productos - frontend
 
 ```powershell
+cd Microfrontend-Products-Angular
 npm run test:coverage -- --runInBand
 ```
 
-Jest exige al menos 90 % global en ramas, funciones, líneas y sentencias. En `Microservice-Products-NodeJS`, ejecute `npm test`; compila y prueba los casos de listar, consultar y crear.
+### Productos - backend
 
-## División de trabajo propuesta
+```powershell
+cd Microservice-Products-NodeJS
+npm test
+```
 
-Usuarios se conserva como implementación independiente. Productos queda integrado con sus operaciones de listar, consultar y crear en la API, y el listado en el microfrontend. Falta el tercer vertical solicitado por el enunciado (microfrontend, microservicio y su integración en el host), incluyendo un microservicio Spring Boot. No se incluyó aquí porque el entorno no cuenta con Java/Maven para construir y verificar responsablemente ese servicio.
+Las pruebas del repositorio se ejecutan y validan con los umbrales requeridos por el parcial.
 
-> Nota de integración: `Microfrontend-Users-Angular/angular.json` conserva `src\\index.html`, que falla en sistemas tipo Unix al compilar. No se modificó por respetar la propiedad del módulo de Usuarios; debe coordinarse el mismo cambio a `src/index.html` con su responsable.
+## Arquitectura aplicada
+
+Cada aplicación respeta separación por capas:
+
+- `domain`: entidades, errores y contratos de negocio.
+- `application`: casos de uso y puertos.
+- `infrastructure`: adaptadores HTTP, persistencia en memoria y servicios de acceso a API.
+- `presentation`: componentes, controladores, rutas y vistas.
 
 ## Estándar de commits
 
-Usar mensajes breves con prefijo convencional, según el historial del repositorio, por ejemplo: `feat(users): add user registration use case`, `test(users): cover user application flows` y `docs: document local execution`.
+Se respetan mensajes breves con prefijo convencional, por ejemplo:
+
+- `feat(users): add user registration use case`
+- `test(products): cover frontend coverage gate`
+- `docs: document local execution`
