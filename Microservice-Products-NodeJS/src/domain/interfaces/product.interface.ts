@@ -50,3 +50,8 @@ export interface Product {
  * ```
  */
 export type ProductCategory = 'Lacteos' | 'Carnes' | 'Frutas' | 'Verduras';
+
+/**
+ * Datos requeridos para crear un producto sin identificador.
+ */
+export type CreateProductInput = Omit<Product, 'id'>;

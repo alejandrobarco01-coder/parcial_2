@@ -75,7 +75,7 @@ describe('UsersPage', () => {
     const draft = fixture.componentInstance.userDraft;
     Object.assign(draft, { name: ' Luis ', lastName: 'Pérez', age: 25, email: 'luis@example.com' });
     await fixture.componentInstance.registerUser();
-    expect(repository.create).toHaveBeenCalledWith(expect.objectContaining({ name: ' Luis ' }));
+    expect(repository.create).toHaveBeenCalledWith(expect.objectContaining({ name: 'Luis' }));
     expect(fixture.componentInstance.users[0].id).toBe(3);
     expect(fixture.componentInstance.userDraft.name).toBe('');
     expect(fixture.componentInstance.message).toContain('creado correctamente');
@@ -84,7 +84,11 @@ describe('UsersPage', () => {
   it('muestra validaciones de negocio al registrar', async () => {
     fixture.detectChanges();
     await fixture.whenStable();
-    fixture.componentInstance.userDraft.email = 'no-es-correo';
+    Object.assign(fixture.componentInstance.userDraft, {
+      name: 'Luis',
+      lastName: 'Pérez',
+      email: 'no-es-correo',
+    });
     await fixture.componentInstance.registerUser();
     expect(repository.create).not.toHaveBeenCalled();
     expect(fixture.componentInstance.message).toContain('correo electrónico');
@@ -95,6 +99,11 @@ describe('UsersPage', () => {
     jest.spyOn(console, 'error').mockImplementation(() => undefined);
     fixture.detectChanges();
     await fixture.whenStable();
+    Object.assign(fixture.componentInstance.userDraft, {
+      name: 'Luis',
+      lastName: 'Pérez',
+      email: 'luis@example.com',
+    });
     await fixture.componentInstance.registerUser();
     expect(fixture.componentInstance.message).toContain('registrar el usuario');
   });

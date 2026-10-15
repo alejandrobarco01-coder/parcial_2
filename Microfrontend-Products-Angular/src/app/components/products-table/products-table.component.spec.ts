@@ -54,10 +54,19 @@ describe('ProductsTableComponent', () => {
     });
   });
 
-  it('debería mapear cada ingeniería a su BadgeType correcto', () => {
+  it('debería mapear cada categoría a su BadgeType correcto', () => {
     expect(component.categoryMap['Carnes']).toBe('danger');
     expect(component.categoryMap['Frutas']).toBe('warning');
     expect(component.categoryMap['Lacteos']).toBe('primary');
     expect(component.categoryMap['Verduras']).toBe('success');
+  });
+
+  it('debería emitir productSelected al hacer clic en ver detalle', () => {
+    component.products = PRODUCTS_MOCK;
+    fixture.detectChanges();
+    const emitSpy = jest.spyOn(component.productSelected, 'emit');
+    const button = fixture.debugElement.query(By.css('tbody tr button'));
+    button.nativeElement.click();
+    expect(emitSpy).toHaveBeenCalledWith(PRODUCTS_MOCK[0].id);
   });
 });

@@ -1,13 +1,64 @@
-@switch(state){
-  @case('loading'){
-    <app-alert alertState="loading" text="Cargando ventas..." ></app-alert>
-  }
+<main class="container py-4">
+  <header class="mb-4">
+    <p class="text-uppercase text-primary fw-semibold small mb-1">Microfrontend de ventas</p>
+    <h1 class="h2 mb-1">Gestión de ventas</h1>
+    <p class="text-secondary mb-0">Consulta, revisa y registra ventas a través del microservicio.</p>
+  </header>
 
-  @case('error'){
-    <app-alert alertState="error" text="Error al cargar las ventas" ></app-alert>
-  }
+  <section class="card border-0 shadow-sm mb-4" aria-labelledby="create-sale-title">
+    <div class="card-body">
+      <h2 id="create-sale-title" class="h5">Registrar venta</h2>
+      <form class="row g-3" (ngSubmit)="registerSale()">
+        <div class="col-md-4">
+          <label class="form-label" for="sale-customer">Cliente</label>
+          <input class="form-control" id="sale-customer" name="customer" [(ngModel)]="saleDraft.customer" required>
+        </div>
+        <div class="col-md-4">
+          <label class="form-label" for="sale-item">Producto / Artículo</label>
+          <input class="form-control" id="sale-item" name="item" [(ngModel)]="saleDraft.item" required>
+        </div>
+        <div class="col-md-2">
+          <label class="form-label" for="sale-quantity">Cantidad</label>
+          <input class="form-control" id="sale-quantity" name="quantity" type="number" min="1" [(ngModel)]="saleDraft.quantity" required>
+        </div>
+        <div class="col-md-2">
+          <label class="form-label" for="sale-total">Total</label>
+          <input class="form-control" id="sale-total" name="total" type="number" min="1" [(ngModel)]="saleDraft.total" required>
+        </div>
+        <div class="col-md-4">
+          <label class="form-label" for="sale-status">Estado</label>
+          <select class="form-select" id="sale-status" name="status" [(ngModel)]="saleDraft.status">
+            @for (status of statusOptions; track status) {
+              <option [ngValue]="status">{{ status }}</option>
+            }
+          </select>
+        </div>
+        <div class="col-md-8 d-flex align-items-end justify-content-end">
+          <button class="btn btn-primary" type="submit">Registrar venta</button>
+        </div>
+      </form>
+      @if (message) {
+        <p class="mt-3 mb-0" role="status">{{ message }}</p>
+      }
+    </div>
+  </section>
 
-  @case('success'){
-    <app-sales-table [sales]="sales" ></app-sales-table>
-  }
-}
+  <section class="card border-0 shadow-sm" aria-labelledby="sales-list-title">
+    <div class="card-body">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 id="sales-list-title" class="h5 mb-0">Ventas registradas</h2>
+        <button class="btn btn-outline-secondary btn-sm" type="button" (click)="loadSales()">Actualizar</button>
+      </div>
+      @switch(state) {
+        @case ('loading') { <app-alert alertState="loading" text="Cargando ventas..."></app-alert> }
+        @case ('error') { <app-alert alertState="error" text="Error al cargar las ventas"></app-alert> }
+        @case ('success') { <app-sales-table [sales]="sales" (saleSelected)="selectSale($event)"></app-sales-table> }
+      }
+      @if (selectedSale) {
+        <aside class="alert alert-info mt-3 mb-0" aria-live="polite">
+          <strong>Detalle:</strong> Venta #{{ selectedSale.id }} · Cliente: {{ selectedSale.customer }} · Producto: {{ selectedSale.item }} · Cantidad: {{ selectedSale.quantity }} · Total: {{ selectedSale.total | currency }} · Estado: {{ selectedSale.status }}
+        </aside>
+      }
+    </div>
+  </section>
+</main>

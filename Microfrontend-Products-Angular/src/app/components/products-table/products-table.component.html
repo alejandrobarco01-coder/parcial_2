@@ -5,6 +5,7 @@
 			<th scope="col">Nombre</th>
 			<th scope="col">Precio</th>
 			<th scope="col">Categoria</th>
+			<th scope="col"><span class="visually-hidden">Acciones</span></th>
 		</tr>
 	</thead>
 	<tbody>
@@ -17,8 +18,9 @@
 					<dsb-badge-atom
 						[text]="product.category"
 						[type]="categoryMap[product.category]" >
-                    </dsb-badge-atom>
+					</dsb-badge-atom>
 				</td>
+				<td><button class="btn btn-link btn-sm" type="button" (click)="productSelected.emit(product.id)" [attr.aria-label]="'Ver detalle de ' + product.name">Ver detalle</button></td>
 			</tr>
 		}
 	</tbody>

@@ -58,4 +58,13 @@ describe('SalesTableComponent', () => {
     expect(component.statusMap['Pagada']).toBe('success');
     expect(component.statusMap['Entregada']).toBe('primary');
   });
+
+  it('debería emitir saleSelected al hacer clic en ver detalle', () => {
+    component.sales = SALES_MOCK;
+    fixture.detectChanges();
+    const emitSpy = jest.spyOn(component.saleSelected, 'emit');
+    const button = fixture.debugElement.query(By.css('tbody tr button'));
+    button.nativeElement.click();
+    expect(emitSpy).toHaveBeenCalledWith(SALES_MOCK[0].id);
+  });
 });

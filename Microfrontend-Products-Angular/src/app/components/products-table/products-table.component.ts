@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, Input } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { BadgeAtom, BadgeType } from '@brejcha13320/design-system-bootstrap';
 import { ProductCategory, Product } from '../../interfaces/products.interface';
 
@@ -37,6 +37,7 @@ export class ProductsTableComponent {
    * generalmente `ListProductsComponent`. Cada producto debe cumplir la interfaz `Product`.
    */
   @Input() products: Product[] = [];
+  @Output() productSelected = new EventEmitter<number>();
   /**
    * Mapeo de categorías de productos a tipos de Badge.
    * @type {Record<ProductCategory, BadgeType>}

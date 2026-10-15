@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, Input } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { BadgeAtom, BadgeType } from '@brejcha13320/design-system-bootstrap';
 import { Sale, SaleStatus } from '../../interfaces/sales.interface';
 
@@ -10,6 +10,7 @@ import { Sale, SaleStatus } from '../../interfaces/sales.interface';
 })
 export class SalesTableComponent {
   @Input() sales: Sale[] = [];
+  @Output() saleSelected = new EventEmitter<number>();
 
   statusMap: Record<SaleStatus, BadgeType> = {
     Pendiente: 'warning',

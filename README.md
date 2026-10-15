@@ -1,29 +1,29 @@
 # Parcial II - Microfrontends y Clean Architecture
 
-Monorepositorio basado en Angular + Module Federation y microservicios Node.js. El repositorio integra tres verticales funcionales: Usuarios, Productos y Ventas.
+Monorepositorio basado en Angular + Module Federation y microservicios Node.js/TypeScript. El repositorio integra tres verticales funcionales completas: Usuarios, Productos y Ventas, implementando estrictamente Clean Architecture tanto en el frontend como en el backend.
 
 ## Alcance actual
 
 La solución en este monorepositorio incluye:
 
-- Host Angular para navegación entre remotos.
-- Microfrontend de Usuarios en `4201` con acceso a la API REST de usuarios.
-- Microfrontend de Productos en `4202` con acceso a la API REST de productos.
-- Microfrontend de Ventas en `4203` con acceso a la API REST de ventas.
-- Microservicio de Usuarios en `3001`.
-- Microservicio de Productos en `3002`.
-- Microservicio de Ventas en `3003`.
+- **Host Angular** en `4200` para navegación y orquestación de remotos con Module Federation.
+- **Microfrontend de Usuarios** en `4201` con Clean Architecture (Listado, consulta por ID y registro).
+- **Microfrontend de Productos** en `4202` con Clean Architecture (Listado, consulta por ID y registro).
+- **Microfrontend de Ventas** en `4203` con Clean Architecture (Listado, consulta por ID y registro).
+- **Microservicio de Usuarios** en `3001` con Clean Architecture y Swagger en `/api/docs`.
+- **Microservicio de Productos** en `3002` con Clean Architecture y Swagger en `/api/docs`.
+- **Microservicio de Ventas** en `3003` con Clean Architecture y Swagger en `/api/docs`.
 
 ## Puertos y responsabilidades
 
 | Aplicación | Puerto | Responsabilidad |
 | --- | ---: | --- |
-| `Client-Host-Angular` | 4200 | Host Angular y navegación entre microfrontends |
-| `Microfrontend-Users-Angular` | 4201 | Listado, consulta y registro de usuarios |
+| `Client-Host-Angular` | 4200 | Host Angular, Navbar global y navegación entre microfrontends |
+| `Microfrontend-Users-Angular` | 4201 | Listado, consulta por ID y registro de usuarios |
 | `Microservice-Users-NodeJS` | 3001 | API REST de usuarios; Swagger en `/api/docs` |
-| `Microfrontend-Products-Angular` | 4202 | Listado de productos |
+| `Microfrontend-Products-Angular` | 4202 | Listado, consulta por ID y registro de productos |
 | `Microservice-Products-NodeJS` | 3002 | API REST de productos; Swagger en `/api/docs` |
-| `Microfrontend-Sales-Angular` | 4203 | Listado y seguimiento de ventas |
+| `Microfrontend-Sales-Angular` | 4203 | Listado, consulta por ID y registro de ventas |
 | `Microservice-Sales-NodeJS` | 3003 | API REST de ventas; Swagger en `/api/docs` |
 
 Los remotos se cargan desde:
@@ -34,146 +34,134 @@ Los remotos se cargan desde:
 
 El host del proyecto navega hacia `/users`, `/products` y `/sales` usando Module Federation.
 
+## Arquitectura aplicada
+
+Cada vertical funcional (Usuarios, Productos, Ventas) respeta el patrón de arquitectura limpia establecido en el diagrama oficial del parcial:
+
+```
+[ MICROFRONT N ]
+   ├── UseCase 1 (Listar)
+   ├── UseCase 2 (Consultar por ID)
+   └── UseCase 3 (Crear)
+           │
+           ▼
+[ API GATEWAY / REPOSITORY ] (Http Repository)
+           │
+           ▼ (HTTP REST)
+[ MICROSERVICE N ]
+   ├── UseCase 1 (Listar)
+   ├── UseCase 2 (Consultar por ID)
+   └── UseCase 3 (Crear)
+           │
+           ▼
+   [ REPOSITORY ] (InMemory Repository)
+```
+
+### Separación por capas:
+- `domain`: entidades, modelos, tipos y contratos de negocio.
+- `application`: puertos de repositorio (`*Repository`) y casos de uso independientes (`*UseCase`).
+- `infrastructure`: adaptadores HTTP (`Http*Repository`) en frontend y persistencia (`InMemory*Repository`) en backend.
+- `presentation`: componentes, controladores, páginas, rutas y plantillas.
+
 ## Ejecutar el sistema completo
 
 Requiere Node.js 20+.
 
-```powershell
+### Microservicios Backend
+
+En terminales independientes:
+
+```bash
 cd Microservice-Users-NodeJS
-npm ci
-npm run start
+npm start
 ```
 
-```powershell
+```bash
 cd Microservice-Products-NodeJS
-npm ci
-npm run start
+npm start
 ```
 
-```powershell
+```bash
 cd Microservice-Sales-NodeJS
-npm ci
-npm run start
+npm start
 ```
 
-En terminales separadas:
+### Microfrontends Frontend y Host
 
-```powershell
+En terminales independientes:
+
+```bash
 cd Microfrontend-Users-Angular
-npm install --legacy-peer-deps
 npm run start -- --port 4201
 ```
 
-```powershell
+```bash
 cd Microfrontend-Products-Angular
-npm install --legacy-peer-deps
 npm run start -- --port 4202
 ```
 
-```powershell
+```bash
 cd Microfrontend-Sales-Angular
-npm install --legacy-peer-deps
 npm run start -- --port 4203
 ```
 
-```powershell
+```bash
 cd Client-Host-Angular
-npm install --legacy-peer-deps
 npm run start -- --port 4200
 ```
 
 ## Verificación rápida
 
-Abre:
-
+Navegador:
 - `http://localhost:4200/users`
 - `http://localhost:4200/products`
 - `http://localhost:4200/sales`
+
+Swagger / OpenAPI:
 - `http://localhost:3001/api/docs`
 - `http://localhost:3002/api/docs`
 - `http://localhost:3003/api/docs`
 
-## API de Usuarios
+## Documentación Técnica (Compodoc)
 
-- `GET /api/users?limit=10`: lista de 1 a 100 usuarios.
-- `GET /api/users/{id}`: consulta un usuario por ID.
-- `POST /api/users`: crea un usuario con `name`, `lastName`, `age`, `email` y `engineering`.
-- `GET /api/docs`: documentación Swagger/OpenAPI.
+Para generar la documentación HTML con Compodoc en cualquiera de los proyectos Angular:
 
-## API de Productos
-
-- `GET /api/products?limit=10`: lista de productos con límite válido entre 1 y 100.
-- `GET /api/products/{id}`: consulta un producto por ID.
-- `POST /api/products`: crea un producto con `name`, `category` y `price` positivos.
-- `GET /api/docs`: documentación Swagger/OpenAPI.
-
-## API de Ventas
-
-- `GET /api/sales?limit=10`: lista de ventas con límite válido entre 1 y 100.
-- `GET /api/sales/{id}`: consulta una venta por su ID.
-- `POST /api/sales`: crea una venta con `customer`, `item`, `quantity`, `total` y `status` válido.
-- `GET /api/docs`: documentación Swagger/OpenAPI.
-
-## Pruebas y cobertura
-
-### Usuarios - frontend
-
-```powershell
-cd Microfrontend-Users-Angular
-npm run test:coverage
+```bash
+cd Client-Host-Angular && npm run compodoc
+cd Microfrontend-Users-Angular && npm run compodoc
+cd Microfrontend-Products-Angular && npm run compodoc
+cd Microfrontend-Sales-Angular && npm run compodoc
 ```
 
-### Usuarios - backend
+## Pruebas y Cobertura (100%)
 
-```powershell
-cd Microservice-Users-NodeJS
-npm test
+Todas las aplicaciones frontend y backend cuentan con cobertura total de pruebas unitarias cumpliendo los umbrales exigidos.
+
+### Usuarios
+```bash
+# Frontend
+cd Microfrontend-Users-Angular && npm test
+# Backend
+cd Microservice-Users-NodeJS && npm test
 ```
 
-### Productos - frontend
-
-```powershell
-cd Microfrontend-Products-Angular
-npm run test:coverage -- --runInBand
+### Productos
+```bash
+# Frontend
+cd Microfrontend-Products-Angular && npm test
+# Backend
+cd Microservice-Products-NodeJS && npm test
 ```
 
-### Productos - backend
-
-```powershell
-cd Microservice-Products-NodeJS
-npm test
+### Ventas
+```bash
+# Frontend
+cd Microfrontend-Sales-Angular && npm test
+# Backend
+cd Microservice-Sales-NodeJS && npm test
 ```
 
-### Ventas - frontend
-
-```powershell
-cd Microfrontend-Sales-Angular
-npm run test:coverage -- --runInBand
+### Client Host
+```bash
+cd Client-Host-Angular && npm test
 ```
-
-### Ventas - backend
-
-```powershell
-cd Microservice-Sales-NodeJS
-npm test
-```
-
-Jest exige cobertura global mínima del 90 % en ramas, funciones, líneas y sentencias.
-
-## Arquitectura aplicada
-
-Cada aplicación respeta separación por capas:
-
-- `domain`: entidades, errores y contratos de negocio.
-- `application`: casos de uso y puertos.
-- `infrastructure`: adaptadores HTTP, persistencia en memoria y servicios de acceso a API.
-- `presentation`: componentes, controladores, rutas y vistas.
-
-## Estándar de commits
-
-Se respetan mensajes breves con prefijo convencional, por ejemplo:
-
-- `feat(users): add user registration use case`
-- `feat(sales): complete sales vertical integration`
-- `test(products): cover frontend coverage gate`
-- `docs: document local execution`

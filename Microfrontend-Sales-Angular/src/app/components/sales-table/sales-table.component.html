@@ -7,6 +7,7 @@
       <th scope="col">Cantidad</th>
       <th scope="col">Total</th>
       <th scope="col">Estado</th>
+      <th scope="col"><span class="visually-hidden">Acciones</span></th>
     </tr>
   </thead>
   <tbody>
@@ -23,6 +24,7 @@
             [type]="statusMap[sale.status]" >
           </dsb-badge-atom>
         </td>
+        <td><button class="btn btn-link btn-sm" type="button" (click)="saleSelected.emit(sale.id)" [attr.aria-label]="'Ver detalle de venta ' + sale.id">Ver detalle</button></td>
       </tr>
     }
   </tbody>
