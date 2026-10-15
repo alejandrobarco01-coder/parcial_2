@@ -83,4 +83,3 @@ Esta rama desarrolla el vertical de Usuarios con sus tres casos de uso en fronte
 ## Estándar de commits
 
 Usar mensajes breves con prefijo convencional, según el historial del repositorio, por ejemplo: `feat(users): add user registration use case`, `test(users): cover user application flows` y `docs: document local execution`.
-

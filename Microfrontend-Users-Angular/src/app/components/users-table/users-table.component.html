@@ -1,0 +1,31 @@
+<table class="table table-striped border">
+	<thead>
+		<tr>
+			<th scope="col">Id</th>
+			<th scope="col">Nombre</th>
+			<th scope="col">Apellido</th>
+			<th scope="col">Edad</th>
+			<th scope="col">Email</th>
+			<th scope="col">Ingenieria</th>
+			<th scope="col"><span class="visually-hidden">Acciones</span></th>
+		</tr>
+	</thead>
+	<tbody>
+		@for (user of users; track user) {
+			<tr>
+				<th scope="row">{{ user.id }}</th>
+				<td>{{ user.name }}</td>
+				<td>{{ user.lastName }}</td>
+				<td>{{ user.age }}</td>
+				<td>{{ user.email }}</td>
+				<td>
+					<dsb-badge-atom 
+						[text]="user.engineering"
+						[type]="engineeringMap[user.engineering]" >
+					</dsb-badge-atom>
+				</td>
+				<td><button class="btn btn-link btn-sm" type="button" (click)="userSelected.emit(user.id)" [attr.aria-label]="'Ver detalle de ' + user.name">Ver detalle</button></td>
+			</tr>
+		}
+	</tbody>
+</table>
