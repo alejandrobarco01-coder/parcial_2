@@ -42,7 +42,7 @@ export class ProductsService {
    * });
    * ```
    */
-  getAllProducts(countProducts: number): Observable<Product[]> {
-    return this.httpClient.get<Product[]>(`http://localhost:3002/api/products/${countProducts}`);
+  getAllProducts(limit: number): Observable<Product[]> {
+    return this.httpClient.get<Product[]>(`http://localhost:3002/api/products?limit=${limit}`);
   }
 }

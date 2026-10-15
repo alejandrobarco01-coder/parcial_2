@@ -39,7 +39,7 @@
 						],
 						"main": "src/main.ts",
 						"outputPath": "dist/Client-Host-Angular",
-						"index": "src\\index.html",
+						"index": "src/index.html",
 						"extraWebpackConfig": "webpack.config.js",
 						"commonChunk": false
 					},
